@@ -26,7 +26,7 @@ const PatientData = () => {
 
   const handleSearch = async () => {
     try {
-      const res = await fetch(http://localhost:5000/api/patients/search?query=${searchQuery});
+      const res = await fetch(`http://localhost:5000/api/patients/search?query=${searchQuery}`);
       const data = await res.json();
       if (res.ok) {
         setPatient(data.patient);
@@ -97,7 +97,7 @@ const PatientData = () => {
         formData.append('reportFile', reportFile);
       }
 
-      const res = await fetch(http://localhost:5000/api/patients/${editedPatient.id}/reports, {
+      const res = await fetch(`http://localhost:5000/api/patients/${editedPatient.id}/reports`, {
         method: 'POST',
         body: formData,
       });
