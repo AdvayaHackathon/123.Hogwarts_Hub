@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard - Fall Detection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f7fc;
+      padding: 30px;
+    }
+    .container {
+      background-color: white;
+      padding: 25px;
+      border-radius: 10px;
+      max-width: 1000px;
+      margin: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #e0eafc;
+    }
+    .download-btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #0e76a8;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .download-btn:hover {
+      background-color: #095a7a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Welcome to Fall Detection Dashboard</h2>
+    <a href="{{ url_for('download_report') }}" class="download-btn">Download Report as Excel</a>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Fall Count</th>
+          <th>Normal Count</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in data %}
+        <tr>
+          <td>{{ record.id }}</td>
+          <td>{{ record.fall_count }}</td>
+          <td>{{ record.normal_count }}</td>
+          <td>{{ record.timestamp }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
