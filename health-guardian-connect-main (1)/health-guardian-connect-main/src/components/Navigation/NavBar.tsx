@@ -8,11 +8,13 @@ import { Button } from '@/components/ui/button';
 const NavBar = () => {
   const navItems = [
     { name: 'Home', path: '/', icon: <Hospital className="h-5 w-5 mr-2" /> },
-    { name: 'QR Code', path: '/qr-code', icon: <QrCode className="h-5 w-5 mr-2" /> },
+    { name: 'QRMed', path: '/qr-code', icon: <QrCode className="h-5 w-5 mr-2" /> },
     { name: 'Patient Data', path: '/patient-data', icon: <User className="h-5 w-5 mr-2" /> },
-    { name: 'Disease Prediction', path: '/disease-prediction', icon: <Activity className="h-5 w-5 mr-2" /> },
-    { name: 'Emergency', path: '/emergency-service', icon: <Ambulance className="h-5 w-5 mr-2" /> },
-    { name: 'Patient Monitoring', path: '/patient-monitoring', icon: <ShieldCheck className="h-5 w-5 mr-2" /> },
+    { name: 'SymptomBot', path: '/disease-prediction', icon: <Activity className="h-5 w-5 mr-2" /> },
+    { name: 'VisitorGate AI', path: '/emergency-service', icon: <Ambulance className="h-5 w-5 mr-2" /> },
+    { name: 'CV-Guard', path: '/patient-monitoring', icon: <ShieldCheck className="h-5 w-5 mr-2" /> },
+    {name: 'MedAlet', path: '/Alert-message-snding1', icon: <ShieldCheck className="h-5 w-5 mr-2" /> },
+   {name: 'SoulScript', path: '/Analicing', icon: <ShieldCheck className="h-5 w-5 mr-2" /> },
   ];
 
   return (
@@ -20,7 +22,7 @@ const NavBar = () => {
       <div className="container flex justify-between items-center h-16">
         <div className="flex items-center space-x-2">
           <Hospital className="h-8 w-8 text-health-600" />
-          <h1 className="text-xl font-bold text-health-700 hidden sm:block">Health Guardian Connect</h1>
+          <h1 className="text-xl font-bold text-health-700 hidden sm:block">MedGuard 360</h1>
         </div>
 
         <nav className="hidden md:flex space-x-1">

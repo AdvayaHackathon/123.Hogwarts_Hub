@@ -46,7 +46,7 @@ const Index = () => {
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-1/2 mb-10 md:mb-0">
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                Health Guardian Connect
+            MedGuard 360
               </h1>
               <p className="text-xl mb-6 text-health-100">
                 Advanced healthcare management with QR code integration, 
@@ -66,7 +66,7 @@ const Index = () => {
                   size="lg" 
                   className="border-white text-white hover:bg-white hover:text-health-700"
                 >
-                  <Link to="/emergency-service">Emergency Services</Link>
+                  <Link to="/emergency-service">VisitorGate AI</Link>
                 </Button>
               </div>
             </div>
