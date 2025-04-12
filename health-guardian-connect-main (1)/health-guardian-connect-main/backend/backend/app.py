@@ -15,16 +15,21 @@ app = Flask(__name__)
 CORS(app)
 
 # MongoDB setup
-client = MongoClient('mongodb://localhost:27017/')
+MONGO_URI = os.getenv('MONGO_URI')
+client = MongoClient(MONGO_URI)
 db = client['qr_database']
 patients = db['patients']
 
-# Pinata API keys (for IPFS)
+# IPFS (Pinata) API setup
 PINATA_API_KEY = os.getenv("PINATA_API_KEY")
 PINATA_SECRET_API_KEY = os.getenv("PINATA_SECRET_API_KEY")
 
 # ------------------- IPFS Upload -------------------
 def upload_to_ipfs(file_stream, filename):
+    if not PINATA_API_KEY or not PINATA_SECRET_API_KEY:
+        print("IPFS API keys missing.")
+        return None
+
     url = "https://api.pinata.cloud/pinning/pinFileToIPFS"
     headers = {
         "pinata_api_key": PINATA_API_KEY,
@@ -32,7 +37,8 @@ def upload_to_ipfs(file_stream, filename):
     }
     files = {'file': (filename, file_stream)}
     response = requests.post(url, files=files, headers=headers)
-    if response.status_code == 200:
+
+    if response.ok:
         ipfs_hash = response.json()["IpfsHash"]
         return f"https://gateway.pinata.cloud/ipfs/{ipfs_hash}"
     else:
@@ -96,14 +102,13 @@ def save_patient():
     patients.update_one({'id': data['id']}, {'$set': data}, upsert=True)
     return jsonify({'message': 'Patient data saved'}), 200
 
-# ------------------- Add Report -------------------
 @app.route('/api/patients/<patient_id>/reports', methods=['POST'])
 def add_report(patient_id):
     report = request.form.to_dict()
     file_url = None
     file_hash = None
 
-    # File Upload
+    # File Upload to IPFS
     if 'reportFile' in request.files:
         file = request.files['reportFile']
         filename = secure_filename(file.filename)
@@ -121,7 +126,7 @@ def add_report(patient_id):
 
     # Report Metadata
     report['date'] = report.get('date', datetime.now().isoformat())
-    report['critical'] = report.get('critical', 'false') == 'true'
+    report['critical'] = report.get('critical', 'false').lower() == 'true'
 
     # Blockchain Chaining
     patient = patients.find_one({'id': patient_id})
@@ -130,8 +135,7 @@ def add_report(patient_id):
     report['previousHash'] = previous_hash
 
     hash_input = json.dumps(report, sort_keys=True).encode()
-    report_hash = hashlib.sha256(hash_input).hexdigest()
-    report['reportHash'] = report_hash
+    report['reportHash'] = hashlib.sha256(hash_input).hexdigest()
 
     # Save Report
     patients.update_one({'id': patient_id}, {'$push': {'reports': report}})
@@ -153,19 +157,19 @@ def analyze():
     if not voice_file or not message_file:
         return jsonify({'error': 'Missing voice or message file'}), 400
 
-    # Voice Sentiment
+    # Voice Sentiment Analysis
     recognizer = sr.Recognizer()
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
-        voice_file.save(temp_audio.name)
-        with sr.AudioFile(temp_audio.name) as source:
-            audio = recognizer.record(source)
-            try:
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
+            voice_file.save(temp_audio.name)
+            with sr.AudioFile(temp_audio.name) as source:
+                audio = recognizer.record(source)
                 voice_text = recognizer.recognize_google(audio)
                 voice_sentiment_score = TextBlob(voice_text).sentiment.polarity
-            except Exception as e:
-                return jsonify({'error': f"Voice processing failed: {str(e)}"}), 500
+    except Exception as e:
+        return jsonify({'error': f"Voice processing failed: {str(e)}"}), 500
 
-    # Message Sentiment
+    # Message Sentiment Analysis
     messages_text = ""
     filename = message_file.filename.lower()
     try:
@@ -190,14 +194,13 @@ def analyze():
 
     voice_sentiment = label(voice_sentiment_score)
     message_sentiment = label(message_sentiment_score)
-
     avg_score = (voice_sentiment_score + message_sentiment_score) / 2
-    if avg_score > 0.2:
-        mental_state = "Healthy"
-    elif avg_score < -0.2:
-        mental_state = "Needs Attention"
-    else:
-        mental_state = "Stable"
+
+    mental_state = (
+        "Healthy" if avg_score > 0.2 else
+        "Needs Attention" if avg_score < -0.2 else
+        "Stable"
+    )
 
     return jsonify({
         'voice_text': voice_text,
